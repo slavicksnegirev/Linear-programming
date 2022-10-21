@@ -6,6 +6,7 @@ namespace LinearProgramming
         private bool isNegative = false;
         private double numerator;
         private double detominator;
+        private int length = 0;
 
         public NumberClass(string number)
         {
@@ -39,6 +40,20 @@ namespace LinearProgramming
             {
                 return numerator.ToString() + '/' + detominator.ToString();
             }
+        }
+
+        public int GetLenght()
+        {
+            if (detominator == 1)
+            {
+                length = numerator.ToString().Length;
+            }
+            else
+            {
+                length = numerator.ToString().Length + 1 + detominator.ToString().Length;
+            }
+
+            return length;
         }
     }
 }
