@@ -9,8 +9,8 @@ namespace LinearProgramming
         private int freeVariablesCount;
         private int maxCellWidth = 3;
 
-        List<String> basicVariables = new List<string>();
-        List<String> freeVariables = new List<string>();
+        List<string> basicVariables = new List<string>();
+        List<string> freeVariables = new List<string>();
         List<List<NumberClass>> myTable = new List<List<NumberClass>>();
 
         public TableClass(int basicVariablesCount, int freeVariablesCount)
@@ -28,8 +28,7 @@ namespace LinearProgramming
                 else
                 {
                     basicVariables.Add("-X" + i);
-                }
-                
+                } 
             }
 
             for (int i = basicVariablesCount; i < freeVariablesCount + basicVariablesCount; i++)
@@ -43,39 +42,45 @@ namespace LinearProgramming
                 {
                     freeVariables.Add("X" + i);
                 }
-
             }
 
+            List<NumberClass> row1 = new List<NumberClass>() { new NumberClass("0"), new NumberClass("1"), new NumberClass("-1") };
+            List<NumberClass> row2 = new List<NumberClass>() { new NumberClass("-6"), new NumberClass("-1"), new NumberClass("-4") };
+            List<NumberClass> row3 = new List<NumberClass>() { new NumberClass("10"), new NumberClass("2"), new NumberClass("1") };
 
-            for (int i = 0; i < freeVariablesCount; i++)
-            {
-                List<NumberClass> row = new List<NumberClass>();
-                if (i == 0)
-                {
-                    Console.WriteLine("________________________________");
-                    Console.WriteLine("Введите значение для строки q.");
+            myTable.Add(row1);
+            myTable.Add(row2);
+            myTable.Add(row3);
 
-                }
-                else
-                {
-                    Console.WriteLine("________________________________");
-                    Console.WriteLine("Введите значение для строки X" + (i + basicVariablesCount + 1) + ".");
-                }      
-                for (int j = 0; j < basicVariablesCount + 1; j++)
-                {
-                    if (j == 0)
-                    {
-                        Console.WriteLine("Введите значение для столбца 1: ");
-                        row.Add(new NumberClass(Console.ReadLine()));
-                    }
-                    else
-                    {
-                        Console.WriteLine("Введите значение для столбца X" + j + ": ");
-                        row.Add(new NumberClass(Console.ReadLine()));
-                    }
-                }
-                myTable.Add(row);
-            }
+            //for (int i = 0; i < freeVariablesCount; i++)
+            //{
+            //    List<NumberClass> row = new List<NumberClass>();
+            //    if (i == 0)
+            //    {
+            //        Console.WriteLine("________________________________");
+            //        Console.WriteLine("Введите значение для строки q.");
+
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("________________________________");
+            //        Console.WriteLine("Введите значение для строки X" + (i + basicVariablesCount + 1) + ".");
+            //    }      
+            //    for (int j = 0; j < basicVariablesCount + 1; j++)
+            //    {
+            //        if (j == 0)
+            //        {
+            //            Console.WriteLine("Введите значение для столбца 1: ");
+            //            row.Add(new NumberClass(Console.ReadLine()));
+            //        }
+            //        else
+            //        {
+            //            Console.WriteLine("Введите значение для столбца X" + j + ": ");
+            //            row.Add(new NumberClass(Console.ReadLine()));
+            //        }
+            //    }
+            //    myTable.Add(row);
+            //}
         }
 
         public void PrintTable()
