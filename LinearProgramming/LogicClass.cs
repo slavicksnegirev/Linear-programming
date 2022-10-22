@@ -6,12 +6,17 @@ namespace LinearProgramming
     public class LogicClass
     {
         int selectedRow;
-        int selectedColumn;       
+        int selectedColumn;
+        bool isDone = false;
 
         NumberClass lambda = new NumberClass("1");
-        //Dictionary<string, string> iterations = new Dictionary<string, string>();
         List<List<string>> iterations = new List<List<string>>();
 
+        public bool IsDone
+        {
+            get => isDone;
+            set => isDone = value;
+        }
 
         public NumberClass Lambda
         {
@@ -50,14 +55,10 @@ namespace LinearProgramming
 
             UpdateFirstTable(myTable);
             myTable.PrintTable(SelectedColumn, SelectedRow);
+        }
 
-            //NumberClass number1 = new NumberClass("1/3");
-            //NumberClass number2 = new NumberClass("2/3");
-
-            //Console.WriteLine(number1 + number2);
-            //Console.WriteLine(number1 - number2);
-            //Console.WriteLine(number1 * number2);
-            //Console.WriteLine(number1 / number2);
+        private void ColumnAndRowSelection(TableClass myTable)
+        {
 
         }
 
@@ -65,10 +66,10 @@ namespace LinearProgramming
         {
             for (int j = 1; j < myTable.BasicVariablesCount + 1; j++)
             {
-                if (myTable.GetTableBeforeCalculationsItem(0,j).IsNegative)
-                {
-                    return j;
-                }               
+                //if (myTable.GetTableBeforeCalculationsItem(0, j).IsNegative && Iterations)
+                //{
+                //    return j;
+                //}
             }
             return -1;
         }
@@ -87,13 +88,18 @@ namespace LinearProgramming
 
         private void AddIteration(TableClass myTable)
         {
-            List<string> tempList = new List<string>() { myTable.FreeVariables[SelectedRow], myTable.BasicVariables[SelectedColumn] };
-            Iterations.AddRange((IEnumerable<List<string>>)tempList);
+            List<string> tempList = new List<string>();
+            tempList.Add(myTable.FreeVariables[SelectedRow]);
+            tempList.Add(myTable.BasicVariables[SelectedColumn].Remove(0, 1));
+            Iterations.Add(tempList);
 
-            foreach (var item in Iterations)
-            {
-                Console.WriteLine(item + " ");
-            }
+            //for (int i = 0; i < Iterations.Count; i++)
+            //{
+            //    for (int j = 0; j < 2; j++)
+            //    {
+            //        Console.Write(Iterations[i][j] + " ");
+            //    }
+            //}
         }
 
         private NumberClass GeneralCoefficient(TableClass myTable)
