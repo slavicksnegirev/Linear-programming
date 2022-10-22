@@ -19,8 +19,8 @@ namespace LinearProgramming
             //Console.WriteLine(number5.ToString());
 
             TableClass tableClass = new TableClass(2, 3);
+            LogicClass logicClass = new LogicClass(tableClass);
 
-            tableClass.PrintTable();
             Console.ReadLine();
         }
     }

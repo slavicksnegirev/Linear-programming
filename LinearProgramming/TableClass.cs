@@ -11,36 +11,71 @@ namespace LinearProgramming
 
         List<string> basicVariables = new List<string>();
         List<string> freeVariables = new List<string>();
-        List<List<NumberClass>> myTable = new List<List<NumberClass>>();
+        List<List<NumberClass>> tableBeforeCalculations = new List<List<NumberClass>>();
+        List<List<NumberClass>> tableAfterCalculations = new List<List<NumberClass>>();
+
+        public int BasicVariablesCount
+        {
+            get => basicVariablesCount;
+            set => basicVariablesCount = value;
+        }
+
+        public int FreeVariablesCount
+        {
+            get => freeVariablesCount;
+            set => freeVariablesCount = value;
+        }
+
+        public List<string> BasicVariables
+        {
+            get => basicVariables;
+            set => basicVariables = value;
+        }
+
+        public List<string> FreeVariables
+        {
+            get => freeVariables;
+            set => freeVariables = value;
+        }
+
+        public List<List<NumberClass>> TableBeforeCalculations
+        {
+            get => tableBeforeCalculations;
+            set => tableBeforeCalculations = value;
+        }
+
+        public List<List<NumberClass>> TableAfterCalculations
+        {
+            get => tableAfterCalculations;
+            set => tableAfterCalculations = value;
+        }
 
         public TableClass(int basicVariablesCount, int freeVariablesCount)
         {
-            this.basicVariablesCount = basicVariablesCount;
-            this.freeVariablesCount = freeVariablesCount;
+            BasicVariablesCount = basicVariablesCount;
+            FreeVariablesCount = freeVariablesCount;
 
-            for (int i = 0; i < basicVariablesCount + 1; i++)
+            for (int i = 0; i < BasicVariablesCount + 1; i++)
             {
                 if (i == 0)
                 {
-                    basicVariables.Add("1");
-
+                    BasicVariables.Add("1");
                 }
                 else
                 {
-                    basicVariables.Add("-X" + i);
+                    BasicVariables.Add("-X" + i);
                 } 
             }
 
-            for (int i = basicVariablesCount; i < freeVariablesCount + basicVariablesCount; i++)
+            for (int i = BasicVariablesCount; i < FreeVariablesCount + BasicVariablesCount; i++)
             {
-                if (i == basicVariablesCount)
+                if (i == BasicVariablesCount)
                 {
-                    freeVariables.Add("q");
-
+                    FreeVariables.Add("q");
                 }
                 else
                 {
-                    freeVariables.Add("X" + i);
+                    FreeVariables.Add("X" + i);
                 }
             }
 
@@ -48,9 +83,16 @@ namespace LinearProgramming
             List<NumberClass> row2 = new List<NumberClass>() { new NumberClass("-6"), new NumberClass("-1"), new NumberClass("-4") };
             List<NumberClass> row3 = new List<NumberClass>() { new NumberClass("10"), new NumberClass("2"), new NumberClass("1") };
 
-            myTable.Add(row1);
-            myTable.Add(row2);
-            myTable.Add(row3);
+            TableBeforeCalculations.Add(row1);
+            TableBeforeCalculations.Add(row2);
+            TableBeforeCalculations.Add(row3);
+
+            List<NumberClass> row4 = new List<NumberClass>() { new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
+
+            TableAfterCalculations.Add(row4);
+            TableAfterCalculations.Add(row4);
+            TableAfterCalculations.Add(row4);
+
 
             //for (int i = 0; i < freeVariablesCount; i++)
             //{
@@ -83,85 +125,90 @@ namespace LinearProgramming
             //}
         }
 
-        public void PrintTable()
+        public void PrintTable(int selectedColumn, int selectedRow)
         {
             GetMaxCellWidth();
 
             Console.WriteLine();
             Console.Write("   | ");
-
-            for (int i = 0; i < basicVariablesCount + 1; i++)
+            for (int i = 0; i < BasicVariablesCount + 1; i++)
             {
                 for (int j = 0; j < CountFreeSpaceForVatiablesItems(i); j++)
                 {
                     Console.Write(" ");
                 }
-                Console.Write(basicVariables[i] + " | ");
+                Console.Write(BasicVariables[i] + " | ");
             }
-
             PrintUnderline();
 
-            for (int i = 0; i < freeVariablesCount; i++)
+            for (int i = 0; i < FreeVariablesCount; i++)
             {
-                if (freeVariables[i] == "q")
+                if (FreeVariables[i] == "q")
                 {
                     Console.Write(" q | ");
-                    for (int j = 0; j < basicVariablesCount + 1; j++)
+                    for (int j = 0; j < BasicVariablesCount + 1; j++)
                     {
-                        PrintRow(i, j);
+                        PrintFirstRow(i, j);
                     }
-                    PrintUnderline();
                 }
                 else
                 {
-                    Console.Write(freeVariables[i] + " | ");
-                    for (int j = 0; j < basicVariablesCount + 1; j++)
+                    Console.Write(FreeVariables[i] + " | ");
+                    for (int j = 0; j < BasicVariablesCount + 1; j++)
                     {
-                        PrintRow(i, j);
-                    }
-                    PrintUnderline();
+                        PrintFirstRow(i, j);
+                    }                   
                 }
-            }
-        }
-
-        private void GetMaxCellWidth()
-        {
-            for (int i = 0; i < freeVariablesCount; i++)
-            {
-                for (int j = 0; j < basicVariablesCount + 1; j++)
+                if (i == selectedRow)
                 {
-                    if (myTable[i][j].GetLenght() > maxCellWidth)
-                    {
-                        maxCellWidth = myTable[i][j].GetLenght();
-                    }
+                    Console.Write("*");
+                }
+                Console.Write("\n   | ");
+                for (int j = 0; j < BasicVariablesCount + 1; j++)
+                {
+                    PrintSecondRow(i, j);
+                }
+                PrintUnderline();
+            }
+            Console.Write("     ");
+            for (int i = 0; i < BasicVariablesCount + 1; i++)
+            {
+                if (i == selectedColumn)
+                {
+                    Console.WriteLine("*");
+                    return;
+                }
+                for (int j = 0; j < maxCellWidth + 3; j++)
+                {
+                    Console.Write(" ");
                 }
             }
         }
 
-        private int CountFreeSpaceForTableItems(int i, int j)
+        private void PrintFirstRow(int i, int j)
         {
-            return maxCellWidth - myTable[i][j].GetLenght();
-        }
-
-        private int CountFreeSpaceForVatiablesItems(int i)
-        {
-            return maxCellWidth - basicVariables[i].Length;
-        }
-
-        private void PrintRow(int i, int j)
-        {
-            Console.Write(myTable[i][j]);
-            for (int k = 0; k < CountFreeSpaceForTableItems(i, j); k++)
+            Console.Write(TableBeforeCalculations[i][j]);
+            for (int k = 0; k < CountFreeSpaceForTableBeforeCalculatingItems(i, j); k++)
             {
                 Console.Write(" ");
             }
             Console.Write(" | ");
         }
 
+        private void PrintSecondRow(int i, int j)
+        {
+            for (int k = 0; k < CountFreeSpaceForTableAfterCalculatingItems(i, j); k++)
+            {
+                Console.Write(" ");
+            }
+            Console.Write(TableAfterCalculations[i][j]);
+            Console.Write(" | ");
+        }
+
         private void PrintUnderline()
         {
             Console.Write("\n---+");
-            for (int i = 0; i < basicVariablesCount + 1; i++)
+            for (int i = 0; i < BasicVariablesCount + 1; i++)
             {
                 for (int j = 0; j < maxCellWidth + 2; j++)
                 {
@@ -170,6 +217,40 @@ namespace LinearProgramming
                 Console.Write("+");
             }
             Console.WriteLine();
+        }
+
+        public NumberClass GetTableItem(int i, int j)
+        {
+            return TableBeforeCalculations[i][j];
+        }
+
+        private void GetMaxCellWidth()
+        {
+            for (int i = 0; i < FreeVariablesCount; i++)
+            {
+                for (int j = 0; j < BasicVariablesCount + 1; j++)
+                {
+                    if (TableBeforeCalculations[i][j].GetLenght() + TableAfterCalculations[i][j].GetLenght() + 1 > maxCellWidth)
+                    {
+                        maxCellWidth = TableBeforeCalculations[i][j].GetLenght() + TableAfterCalculations[i][j].GetLenght() + 1;
+                    }
+                }
+            }
+        }
+
+        private int CountFreeSpaceForTableAfterCalculatingItems(int i, int j)
+        {
+            return maxCellWidth - TableAfterCalculations[i][j].GetLenght();
+        }
+
+        private int CountFreeSpaceForTableBeforeCalculatingItems(int i, int j)
+        {
+            return maxCellWidth - TableBeforeCalculations[i][j].GetLenght();
+        }
+
+        private int CountFreeSpaceForVatiablesItems(int i)
+        {
+            return maxCellWidth - BasicVariables[i].Length;
         }
     }
 }

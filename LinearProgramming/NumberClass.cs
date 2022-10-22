@@ -8,52 +8,76 @@ namespace LinearProgramming
         private double detominator;
         private int length = 0;
 
+        public bool IsNegative
+        {
+            get => isNegative;
+            set => isNegative = value;
+        }
+
+        public double Numerator
+        {
+            get => numerator;
+            set => numerator = value;
+        }
+
+        public double Detominator
+        {
+            get => detominator;
+            set => detominator = value;
+        }
+
+        public int Length
+        {
+            get => length;
+            set => length = value;
+        }
+
         public NumberClass(string number)
         {
             if (number[0] == '-')
             {
-                isNegative = true;
+                IsNegative = true;
             }
 
             int indexOfSlash = number.IndexOf('/');
 
             if (indexOfSlash < 0)
             {
-                numerator = Convert.ToDouble(number);
-                detominator = 1;
+                Numerator = Convert.ToDouble(number);
+                Detominator = 1;
             }
             else
             {
                 string[] tempNumbers = number.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                numerator = Convert.ToDouble(tempNumbers[0]);
-                detominator = Convert.ToDouble(tempNumbers[1]);
+                Numerator = Convert.ToDouble(tempNumbers[0]);
+                Detominator = Convert.ToDouble(tempNumbers[1]);
             }
         }
 
         public override string ToString()
         {
-            if (detominator == 1)
+            if (Detominator == 1)
             {
-                return numerator.ToString();
+                return Numerator.ToString();
             }
             else
             {
-                return numerator.ToString() + '/' + detominator.ToString();
+                return Numerator.ToString() + '/' + Detominator.ToString();
             }
         }
 
         public int GetLenght()
         {
-            if (detominator == 1)
+            if (Detominator == 1)
             {
-                length = numerator.ToString().Length;
+                Length = Numerator.ToString().Length;
             }
             else
             {
-                length = numerator.ToString().Length + 1 + detominator.ToString().Length;
+                Length = Numerator.ToString().Length + 1 + Detominator.ToString().Length;
             }
 
-            return length;
+            return Length;
         }
     }
 }
