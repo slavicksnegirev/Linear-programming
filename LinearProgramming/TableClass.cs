@@ -88,10 +88,12 @@ namespace LinearProgramming
             TableBeforeCalculations.Add(row3);
 
             List<NumberClass> row4 = new List<NumberClass>() { new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
+            List<NumberClass> row5 = new List<NumberClass>() { new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
+            List<NumberClass> row6 = new List<NumberClass>() { new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
 
             TableAfterCalculations.Add(row4);
-            TableAfterCalculations.Add(row4);
-            TableAfterCalculations.Add(row4);
+            TableAfterCalculations.Add(row5);
+            TableAfterCalculations.Add(row6);
 
 
             //for (int i = 0; i < freeVariablesCount; i++)
@@ -219,10 +221,12 @@ namespace LinearProgramming
             Console.WriteLine();
         }
 
-        public NumberClass GetTableItem(int i, int j)
+        public NumberClass GetTableBeforeCalculationsItem(int i, int j)
         {
             return TableBeforeCalculations[i][j];
         }
+
+        //public void Set
 
         private void GetMaxCellWidth()
         {

@@ -52,18 +52,7 @@ namespace LinearProgramming
                 Numerator = Convert.ToDouble(tempNumbers[0]);
                 Detominator = Convert.ToDouble(tempNumbers[1]);
             }
-        }
-
-        public override string ToString()
-        {
-            if (Detominator == 1)
-            {
-                return Numerator.ToString();
-            }
-            else
-            {
-                return Numerator.ToString() + '/' + Detominator.ToString();
-            }
+            Length = GetLenght();
         }
 
         public int GetLenght()
@@ -78,6 +67,135 @@ namespace LinearProgramming
             }
 
             return Length;
+        }
+
+        public static NumberClass operator +(NumberClass number1, NumberClass number2)
+        {           
+            NumberClass result = new NumberClass("0");
+
+            if (number1.Detominator != number2.Detominator)
+            {
+                result.Detominator = number1.Detominator * number2.Detominator;
+                result.Numerator = (number1.Numerator * number2.Detominator) + (number2.Numerator * number1.Detominator);
+            }
+            else
+            {
+                result.Detominator = number1.Detominator;
+                result.Numerator = number1.Numerator + number2.Numerator;
+            }
+
+            if (result.Numerator < 0)
+            {
+                result.IsNegative = true;
+            }
+            else if (result.Numerator == 0)
+            {
+                result.Detominator = 1;
+            }
+
+            result.Length = result.GetLenght();
+
+            return result;
+        }
+
+        public static NumberClass operator -(NumberClass number1, NumberClass number2)
+        {
+            NumberClass result = new NumberClass("0");
+
+            if (number1.Detominator != number2.Detominator)
+            {
+                result.Detominator = number1.Detominator * number2.Detominator;
+                result.Numerator = (number1.Numerator * number2.Detominator) - (number2.Numerator * number1.Detominator);
+            }
+            else
+            {
+                result.Detominator = number1.Detominator;
+                result.Numerator = number1.Numerator - number2.Numerator;
+            }
+
+            if (result.Numerator < 0)
+            {
+                result.IsNegative = true;
+            }
+            else if (result.Numerator == 0)
+            {
+                result.Detominator = 1;
+            }
+
+            result.Length = result.GetLenght();
+
+            return result;
+        }
+
+        public static NumberClass operator *(NumberClass number1, NumberClass number2)
+        {
+            NumberClass result = new NumberClass("0");
+
+            result.Detominator = number1.Detominator * number2.Detominator;
+            result.Numerator = number1.Numerator * number2.Numerator;
+
+            if (result.Numerator < 0)
+            {
+                result.IsNegative = true;
+            }
+            else if (result.Numerator == 0)
+            {
+                result.Numerator = 0;
+                result.Detominator = 1;
+            }
+
+            result.Length = result.GetLenght();
+
+            return result;
+        }
+
+        public static NumberClass operator /(NumberClass number1, NumberClass number2)
+        {
+            NumberClass result = new NumberClass("0");
+
+            if (number1.Numerator == 0 || number2.Numerator == 0)
+            {
+                result.Numerator = 0;
+                result.Detominator = 1;
+            }
+            else
+            {
+                if (number2.isNegative)
+                {
+                    result.Detominator = number1.Detominator * (-1) * number2.Numerator;
+                    result.Numerator = (-1) * number1.Numerator * number2.Detominator;
+
+                }
+                else
+                {
+                    result.Detominator = number1.Detominator * number2.Numerator;
+                    result.Numerator = number1.Numerator * number2.Detominator;
+                }
+            }
+            if (result.Numerator < 0)
+            {
+                result.IsNegative = true;
+            }
+            else if (result.Numerator == 0)
+            {
+                result.Detominator = 1;
+            }
+
+            result.Length = result.GetLenght();
+
+            return result;
+        }
+
+        public override string ToString()
+        {
+            if (Detominator == 1)
+            {
+                return Numerator.ToString();
+            }
+            else
+            {
+                return Numerator.ToString() + '/' + Detominator.ToString();
+            }
         }
     }
 }
