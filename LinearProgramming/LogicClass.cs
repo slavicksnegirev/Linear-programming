@@ -5,12 +5,12 @@ namespace LinearProgramming
 {
     public class LogicClass
     {
-        int selectedRow;
-        int selectedColumn;
+        int selectedRow = -1;
+        int selectedColumn = -1;
         bool isDone = false;
 
         NumberClass lambda = new NumberClass("1");
-        List<List<string>> iterations = new List<List<string>>();
+        List<List<int>> iterations = new List<List<int>>();
 
         public bool IsDone
         {
@@ -36,7 +36,7 @@ namespace LinearProgramming
             set => selectedColumn = value;
         }
 
-        public List<List<string>> Iterations
+        public List<List<int>> Iterations
         {
             get => iterations;
             set => iterations = value;
@@ -55,28 +55,54 @@ namespace LinearProgramming
 
             UpdateFirstTable(myTable);
             myTable.PrintTable(SelectedColumn, SelectedRow);
+
         }
 
         private void ColumnAndRowSelection(TableClass myTable)
         {
+            do
+            {
+                SelectedColumn = ColumnSelection(myTable);
+                if (SelectedColumn != -1)
+                {
+                    SelectedRow = RowSelection(myTable);
+                    if (SelectedRow == -1)
+                    {
+                        SelectedRow = RowSelectionIfAcceptableSolution(myTable);
+                    }
+                }
+                
 
+                //if (SelectedColumn != -1 && SelectedRow != -1)
+                //{
+                //    for (int i = 0; i < Iterations.Count; i++)
+                //    {
+                //        if (Iterations[i][0] == SelectedRow && Iterations[i][1] == SelectedColumn)
+                //        {
+
+
+                //        }
+                //    }
+                //}
+            } while (SelectedColumn < 0 || SelectedRow < 0);
+            
         }
 
         private int ColumnSelection(TableClass myTable)
         {
-            for (int j = 1; j < myTable.BasicVariablesCount + 1; j++)
+            for (int j = 1; j < myTable.FreeVariablesCount + 1; j++)
             {
-                //if (myTable.GetTableBeforeCalculationsItem(0, j).IsNegative && Iterations)
-                //{
-                //    return j;
-                //}
+                if (myTable.GetTableBeforeCalculationsItem(0, j).IsNegative)
+                {
+                    return j;
+                }
             }
             return -1;
         }
 
         private int RowSelection(TableClass myTable)
         {
-            for (int i = 1; i < myTable.FreeVariablesCount; i++)
+            for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
             {
                 if (myTable.GetTableBeforeCalculationsItem(i, 0).IsNegative)
                 {
@@ -86,11 +112,27 @@ namespace LinearProgramming
             return -1;
         }
 
+        private int RowSelectionIfAcceptableSolution(TableClass myTable)
+        {
+            int indexOfMaxDifference = -1;
+            NumberClass maxDifference = new NumberClass("0");
+            
+            for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
+            {
+                if (myTable.GetTableBeforeCalculationsItem(i, 0) / myTable.GetTableBeforeCalculationsItem(i, selectedColumn) > maxDifference)
+                {
+                    maxDifference = myTable.GetTableBeforeCalculationsItem(i, 0) / myTable.GetTableBeforeCalculationsItem(i, selectedColumn);
+                    indexOfMaxDifference = i;
+                }
+            }
+            return indexOfMaxDifference;
+        }
+
         private void AddIteration(TableClass myTable)
         {
-            List<string> tempList = new List<string>();
-            tempList.Add(myTable.FreeVariables[SelectedRow]);
-            tempList.Add(myTable.BasicVariables[SelectedColumn].Remove(0, 1));
+            List<int> tempList = new List<int>();
+            tempList.Add(SelectedRow);
+            tempList.Add(SelectedColumn);
             Iterations.Add(tempList);
 
             //for (int i = 0; i < Iterations.Count; i++)
@@ -111,7 +153,7 @@ namespace LinearProgramming
 
         private void SetNewItemsForSelectedRow(TableClass myTable)
         {
-            for (int i = 0; i < myTable.BasicVariablesCount + 1; i++)
+            for (int i = 0; i < myTable.FreeVariablesCount + 1; i++)
             {
                 if (i != SelectedColumn)
                 {
@@ -122,7 +164,7 @@ namespace LinearProgramming
 
         private void SetNewItemsForSelectedColumn(TableClass myTable)
         {
-            for (int i = 0; i < myTable.FreeVariablesCount; i++)
+            for (int i = 0; i < myTable.BasicVariablesCount + 1; i++)
             {
                 if (i != SelectedRow)
                 {
@@ -134,9 +176,9 @@ namespace LinearProgramming
 
         private void SetOtherNewItems(TableClass myTable)
         {
-            for (int i = 0; i < myTable.FreeVariablesCount; i++)
+            for (int i = 0; i < myTable.BasicVariablesCount + 1; i++)
             {
-                for (int j = 0; j < myTable.BasicVariablesCount + 1; j++)
+                for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
                 {
                     if (i != SelectedRow && j != SelectedColumn)
                     {
@@ -148,9 +190,9 @@ namespace LinearProgramming
 
         private void UpdateFirstTable(TableClass myTable)
         {
-            for (int i = 0; i < myTable.FreeVariablesCount; i++)
+            for (int i = 0; i < myTable.BasicVariablesCount + 1; i++)
             {
-                for (int j = 0; j < myTable.BasicVariablesCount + 1; j++)
+                for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
                 {
                     if (i == SelectedRow || j == SelectedColumn)
                     {                       
@@ -163,9 +205,12 @@ namespace LinearProgramming
                 }
             }
 
-            string temp = myTable.BasicVariables[selectedColumn];
-            myTable.BasicVariables[selectedColumn] = "-" + myTable.FreeVariables[selectedRow];
-            myTable.FreeVariables[selectedRow] = temp.Remove(0, 1);
+            //string temp = myTable.FreeVariables[selectedColumn];
+            //myTable.FreeVariables[selectedColumn] = myTable.BasicVariables[selectedRow];
+            //myTable.BasicVariables[selectedRow] = temp;
+
+            // Обмен данных 
+            (myTable.FreeVariables[selectedColumn], myTable.BasicVariables[selectedRow]) = (myTable.BasicVariables[selectedRow], myTable.FreeVariables[selectedColumn]);
         }
     }
 }

@@ -69,6 +69,24 @@ namespace LinearProgramming
             return Length;
         }
 
+        public static void ShortenTheFraction(NumberClass number)
+        {
+            double remainder = 1;
+            double numerator = number.Numerator;
+            double detominator = number.Detominator;
+
+            for (int i = 2; i <= numerator && i <= detominator; i++)
+            {
+                if ((numerator % i == 0) && (detominator % i == 0))
+                    remainder = i;
+            }
+            if (remainder > 0)
+            {
+                number.Numerator /= remainder;
+                number.Detominator /= remainder;
+            } 
+        }
+
         public static NumberClass operator +(NumberClass number1, NumberClass number2)
         {           
             NumberClass result = new NumberClass("0");
@@ -83,7 +101,6 @@ namespace LinearProgramming
                 result.Detominator = number1.Detominator;
                 result.Numerator = number1.Numerator + number2.Numerator;
             }
-
             if (result.Numerator < 0)
             {
                 result.IsNegative = true;
@@ -92,8 +109,8 @@ namespace LinearProgramming
             {
                 result.Detominator = 1;
             }
-
             result.Length = result.GetLenght();
+            ShortenTheFraction(result);
 
             return result;
         }
@@ -112,7 +129,6 @@ namespace LinearProgramming
                 result.Detominator = number1.Detominator;
                 result.Numerator = number1.Numerator - number2.Numerator;
             }
-
             if (result.Numerator < 0)
             {
                 result.IsNegative = true;
@@ -121,8 +137,8 @@ namespace LinearProgramming
             {
                 result.Detominator = 1;
             }
-
             result.Length = result.GetLenght();
+            ShortenTheFraction(result);
 
             return result;
         }
@@ -143,8 +159,8 @@ namespace LinearProgramming
                 result.Numerator = 0;
                 result.Detominator = 1;
             }
-
             result.Length = result.GetLenght();
+            ShortenTheFraction(result);
 
             return result;
         }
@@ -180,10 +196,34 @@ namespace LinearProgramming
             {
                 result.Detominator = 1;
             }
-
             result.Length = result.GetLenght();
+            ShortenTheFraction(result);
 
             return result;
+        }
+
+        public static bool operator <(NumberClass number1, NumberClass number2)
+        {
+            if (number1.Numerator / number1.Detominator < number2.Numerator / number2.Detominator)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            } 
+        }
+
+        public static bool operator >(NumberClass number1, NumberClass number2)
+        {
+            if (number1.Numerator / number1.Detominator > number2.Numerator / number2.Detominator)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public override string ToString()
