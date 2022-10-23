@@ -226,6 +226,36 @@ namespace LinearProgramming
             }
         }
 
+        public static bool operator ==(NumberClass number1, NumberClass number2)
+        {
+            ShortenTheFraction(number1);
+            ShortenTheFraction(number2);
+
+            if ((number1.Numerator / number1.Detominator) == (number2.Numerator / number2.Detominator))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool operator !=(NumberClass number1, NumberClass number2)
+        {
+            ShortenTheFraction(number1);
+            ShortenTheFraction(number2);
+
+            if ((number1.Numerator / number1.Detominator) != (number2.Numerator / number2.Detominator))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public override string ToString()
         {
             if (Detominator == 1)

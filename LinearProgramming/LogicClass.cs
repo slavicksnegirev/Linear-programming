@@ -5,88 +5,145 @@ namespace LinearProgramming
 {
     public class LogicClass
     {
-        int selectedRow = -1;
-        int selectedColumn = -1;
-        bool isDone = false;
+        int _selectedRow = -1;
+        int _selectedColumn = -1;
+        bool _isDone = false;
 
-        NumberClass lambda = new NumberClass("1");
-        List<List<int>> iterations = new List<List<int>>();
+        NumberClass _lambda = new NumberClass("1");
+        List<List<int>> _iterations = new List<List<int>>();
+        Dictionary<string, NumberClass> _solution = new Dictionary<string, NumberClass>();
 
         public bool IsDone
         {
-            get => isDone;
-            set => isDone = value;
+            get => _isDone;
+            set => _isDone = value;
         }
 
         public NumberClass Lambda
         {
-            get => lambda;
-            set => lambda = value;
+            get => _lambda;
+            set => _lambda = value;
         }
 
         public int SelectedRow
         {
-            get => selectedRow;
-            set => selectedRow = value;
+            get => _selectedRow;
+            set => _selectedRow = value;
         }
 
         public int SelectedColumn
         {
-            get => selectedColumn;
-            set => selectedColumn = value;
+            get => _selectedColumn;
+            set => _selectedColumn = value;
         }
 
         public List<List<int>> Iterations
         {
-            get => iterations;
-            set => iterations = value;
+            get => _iterations;
+            set => _iterations = value;
+        }
+
+        public Dictionary<string, NumberClass> Solution
+        {
+            get => _solution;
+            set => _solution = value;
         }
 
         public LogicClass(TableClass myTable)
         {
-            SelectedColumn = ColumnSelection(myTable);
-            SelectedRow = RowSelection(myTable);
+            do
+            {
+                MainLogigMethod(myTable);
+            } while (!IsDone);
+
+            myTable.PrintTable();
+            foreach (var item in Solution)
+            {
+                Console.Write($"{item.Key} = {item.Value}, ");
+            }
+            Console.WriteLine("q = " + myTable.GetTableBeforeCalculationsItem(0,0).ToString() + ";");
+        }
+
+        private void MainLogigMethod(TableClass myTable)
+        {
+            ColumnAndRowSelection(myTable);
             AddIteration(myTable);
-            myTable.TableAfterCalculations[selectedRow][selectedColumn] = GeneralCoefficient(myTable);
+            myTable.TableAfterCalculations[_selectedRow][_selectedColumn] = GeneralCoefficient(myTable);
             SetNewItemsForSelectedRow(myTable);
             SetNewItemsForSelectedColumn(myTable);
             SetOtherNewItems(myTable);
             myTable.PrintTable(SelectedColumn, SelectedRow);
-
             UpdateFirstTable(myTable);
-            myTable.PrintTable(SelectedColumn, SelectedRow);
+            IsDone = CheckTheEndOfTheSolution(myTable);
+        }
 
+        private bool CheckTheEndOfTheSolution(TableClass myTable)
+        {
+            Solution.Clear();
+            for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
+            {
+                Solution.Add(myTable.FreeVariables[i], new NumberClass("0"));
+            }
+            for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
+            {
+                Solution.Add(myTable.BasicVariables[i], myTable.TableBeforeCalculations[i][0]);
+            }
+            for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
+            {
+                if (Solution["X" + i].IsNegative || Solution["X" + i] == new NumberClass("0"))
+                {
+                    return false;
+                }
+            }
+            for (int i = myTable.FreeVariablesCount + 1; i < myTable.BasicVariablesCount + myTable.FreeVariablesCount  + 1; i++)
+            {
+                if (Solution["X" + i].IsNegative)
+                {
+                    return false;
+                }
+            }
+            for (int i = 0; i < myTable.BasicVariablesCount + 1; i++)
+            {
+                NumberClass result = new NumberClass("0");
+
+                for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
+                {
+                    result += myTable.TableBeforeCalculations[i][j];
+                }
+                if (result.IsNegative)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private void ColumnAndRowSelection(TableClass myTable)
         {
-            do
+            SelectedColumn = ColumnSelection(myTable);
+            if (SelectedColumn != -1)
             {
-                SelectedColumn = ColumnSelection(myTable);
-                if (SelectedColumn != -1)
+                SelectedRow = RowSelection(myTable);
+                if (SelectedRow == -1)
                 {
-                    SelectedRow = RowSelection(myTable);
-                    if (SelectedRow == -1)
-                    {
-                        SelectedRow = RowSelectionIfAcceptableSolution(myTable);
-                    }
+                    SelectedRow = RowSelectionIfAcceptableSolution(myTable);
                 }
+            }
                 
 
-                //if (SelectedColumn != -1 && SelectedRow != -1)
-                //{
-                //    for (int i = 0; i < Iterations.Count; i++)
-                //    {
-                //        if (Iterations[i][0] == SelectedRow && Iterations[i][1] == SelectedColumn)
-                //        {
+            //if (SelectedColumn != -1 && SelectedRow != -1)
+            //{
+            //    for (int i = 0; i < Iterations.Count; i++)
+            //    {
+            //        if (Iterations[i][0] == SelectedRow && Iterations[i][1] == SelectedColumn)
+            //        {
 
 
-                //        }
-                //    }
-                //}
-            } while (SelectedColumn < 0 || SelectedRow < 0);
+            //        }
+            //    }
+            //}
             
-        }
+        } //todo убрать зацикливание и добавление новой строки
 
         private int ColumnSelection(TableClass myTable)
         {
@@ -119,16 +176,16 @@ namespace LinearProgramming
             
             for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
             {
-                if (myTable.GetTableBeforeCalculationsItem(i, 0) / myTable.GetTableBeforeCalculationsItem(i, selectedColumn) > maxDifference)
+                if (myTable.GetTableBeforeCalculationsItem(i, _selectedColumn) / myTable.GetTableBeforeCalculationsItem(i, 0) > maxDifference)
                 {
-                    maxDifference = myTable.GetTableBeforeCalculationsItem(i, 0) / myTable.GetTableBeforeCalculationsItem(i, selectedColumn);
+                    maxDifference = myTable.GetTableBeforeCalculationsItem(i, _selectedColumn) / myTable.GetTableBeforeCalculationsItem(i, 0);
                     indexOfMaxDifference = i;
                 }
             }
             return indexOfMaxDifference;
         }
 
-        private void AddIteration(TableClass myTable)
+        private void AddIteration(TableClass myTable) // todo сделать нормально для учета циклов
         {
             List<int> tempList = new List<int>();
             tempList.Add(SelectedRow);
@@ -168,8 +225,8 @@ namespace LinearProgramming
             {
                 if (i != SelectedRow)
                 {
-                    myTable.TableAfterCalculations[i][SelectedColumn] = myTable.TableBeforeCalculations[i][SelectedColumn] / Lambda;
-                    myTable.TableAfterCalculations[i][SelectedColumn].Numerator *= -1;
+                    myTable.TableAfterCalculations[i][SelectedColumn] = myTable.TableBeforeCalculations[i][SelectedColumn] / Lambda ;
+                    myTable.TableAfterCalculations[i][SelectedColumn] *= new NumberClass("-1");
                 }
             }
         }
@@ -182,7 +239,7 @@ namespace LinearProgramming
                 {
                     if (i != SelectedRow && j != SelectedColumn)
                     {
-                        myTable.TableAfterCalculations[i][j] = myTable.TableBeforeCalculations[selectedRow][j] * myTable.TableAfterCalculations[i][selectedColumn];
+                        myTable.TableAfterCalculations[i][j] = myTable.TableBeforeCalculations[_selectedRow][j] * myTable.TableAfterCalculations[i][_selectedColumn];
                     }
                 }
             }
@@ -205,12 +262,8 @@ namespace LinearProgramming
                 }
             }
 
-            //string temp = myTable.FreeVariables[selectedColumn];
-            //myTable.FreeVariables[selectedColumn] = myTable.BasicVariables[selectedRow];
-            //myTable.BasicVariables[selectedRow] = temp;
-
             // Обмен данных 
-            (myTable.FreeVariables[selectedColumn], myTable.BasicVariables[selectedRow]) = (myTable.BasicVariables[selectedRow], myTable.FreeVariables[selectedColumn]);
+            (myTable.FreeVariables[_selectedColumn], myTable.BasicVariables[_selectedRow]) = (myTable.BasicVariables[_selectedRow], myTable.FreeVariables[_selectedColumn]);
         }
     }
 }
