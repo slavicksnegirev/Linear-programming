@@ -3,15 +3,15 @@ namespace LinearProgramming
 {
     public class NumberClass
     {
-        private bool isNegative = false;
+        private int length = 0;
         private double numerator;
         private double detominator;
-        private int length = 0;
+        private bool isNegative = false;
 
-        public bool IsNegative
+        public int Length
         {
-            get => isNegative;
-            set => isNegative = value;
+            get => length;
+            set => length = value;
         }
 
         public double Numerator
@@ -26,10 +26,10 @@ namespace LinearProgramming
             set => detominator = value;
         }
 
-        public int Length
+        public bool IsNegative
         {
-            get => length;
-            set => length = value;
+            get => isNegative;
+            set => isNegative = value;
         }
 
         public NumberClass(string number)
@@ -84,7 +84,8 @@ namespace LinearProgramming
             {
                 number.Numerator /= remainder;
                 number.Detominator /= remainder;
-            } 
+            }
+            number.Length = number.GetLenght();
         }
 
         public static NumberClass operator +(NumberClass number1, NumberClass number2)

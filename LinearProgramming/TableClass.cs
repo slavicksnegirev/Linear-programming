@@ -16,10 +16,18 @@ namespace LinearProgramming
 
         List<List<string>> _inputValues = new List<List<string>>()
         {
-            new List<string> { "0", "-1",  "1" },
-            new List<string> { "2", "-2",  "1" },
-            new List<string> { "2",  "1", "-2" },
-            new List<string> { "5",  "1",  "1" }
+            new List<string> { "0", "-4", "1" },
+            new List<string> { "2", "-1", "2" },
+            new List<string> { "2", "1", "-1" },
+
+            //new List<string> { "0", "1", "-1" },
+            //new List<string> { "-6", "-1", "-4" },
+            //new List<string> { "10", "2", "1" },
+            
+            //new List<string> { "0", "-1", "1" },
+            //new List<string> { "2", "-2", "1" },
+            //new List<string> { "2", "1", "-2" },
+            //new List<string> { "5",  "1",  "1" }
         };
 
         public int FreeVariablesCount
@@ -83,68 +91,7 @@ namespace LinearProgramming
                 }
                 TableBeforeCalculations.Add(line1);
                 TableAfterCalculations.Add(line2);
-
             }
-
-            //List<NumberClass> row1 = new List<NumberClass>()
-            //{ new NumberClass("0"), new NumberClass("-1"), new NumberClass("1") };
-            //List<NumberClass> row2 = new List<NumberClass>()
-            //{ new NumberClass("2"), new NumberClass("-2"), new NumberClass("1") };
-            //List<NumberClass> row3 = new List<NumberClass>()
-            //{ new NumberClass("2"), new NumberClass("1"), new NumberClass("-2") };
-            //List<NumberClass> row4 = new List<NumberClass>()
-            //{ new NumberClass("5"), new NumberClass("1"), new NumberClass("1") };
-
-            //TableBeforeCalculations.Add(row1);
-            //TableBeforeCalculations.Add(row2);
-            //TableBeforeCalculations.Add(row3);
-            //TableBeforeCalculations.Add(row4);
-
-            //List<NumberClass> _row1 = new List<NumberClass>()
-            //{ new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
-            //List<NumberClass> _row2 = new List<NumberClass>()
-            //{ new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
-            //List<NumberClass> _row3 = new List<NumberClass>()
-            //{ new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
-            //List<NumberClass> _row4 = new List<NumberClass>()
-            //{ new NumberClass("0"), new NumberClass("0"), new NumberClass("0") };
-
-            //TableAfterCalculations.Add(_row1);
-            //TableAfterCalculations.Add(_row2);
-            //TableAfterCalculations.Add(_row3);
-            //TableAfterCalculations.Add(_row4);
-
-
-
-            //for (int i = 0; i < freeVariablesCount; i++)
-            //{
-            //    List<NumberClass> row = new List<NumberClass>();
-            //    if (i == 0)
-            //    {
-            //        Console.WriteLine("________________________________");
-            //        Console.WriteLine("Введите значение для строки q.");
-
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("________________________________");
-            //        Console.WriteLine("Введите значение для строки X" + (i + basicVariablesCount + 1) + ".");
-            //    }      
-            //    for (int j = 0; j < basicVariablesCount + 1; j++)
-            //    {
-            //        if (j == 0)
-            //        {
-            //            Console.WriteLine("Введите значение для столбца 1: ");
-            //            row.Add(new NumberClass(Console.ReadLine()));
-            //        }
-            //        else
-            //        {
-            //            Console.WriteLine("Введите значение для столбца X" + j + ": ");
-            //            row.Add(new NumberClass(Console.ReadLine()));
-            //        }
-            //    }
-            //    myTable.Add(row);
-            //}
         }
 
         public void PrintTable(int selectedColumn, int selectedRow)

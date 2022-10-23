@@ -9,7 +9,8 @@ namespace LinearProgramming
         int _selectedColumn = -1;
         bool _isDone = false;
 
-        NumberClass _lambda = new NumberClass("1");
+        NumberClass _zero = new NumberClass("0");
+        NumberClass _lambda = new NumberClass("1");       
         List<List<int>> _iterations = new List<List<int>>();
         Dictionary<string, NumberClass> _solution = new Dictionary<string, NumberClass>();
 
@@ -17,6 +18,11 @@ namespace LinearProgramming
         {
             get => _isDone;
             set => _isDone = value;
+        }
+
+        public NumberClass Zero
+        {
+            get => _zero;
         }
 
         public NumberClass Lambda
@@ -55,19 +61,13 @@ namespace LinearProgramming
             {
                 MainLogigMethod(myTable);
             } while (!IsDone);
-
-            myTable.PrintTable();
-            foreach (var item in Solution)
-            {
-                Console.Write($"{item.Key} = {item.Value}, ");
-            }
-            Console.WriteLine("q = " + myTable.GetTableBeforeCalculationsItem(0,0).ToString() + ";");
+            PrintSolution(myTable);
         }
 
         private void MainLogigMethod(TableClass myTable)
         {
             ColumnAndRowSelection(myTable);
-            AddIteration(myTable);
+            AddIteration();
             myTable.TableAfterCalculations[_selectedRow][_selectedColumn] = GeneralCoefficient(myTable);
             SetNewItemsForSelectedRow(myTable);
             SetNewItemsForSelectedColumn(myTable);
@@ -90,7 +90,13 @@ namespace LinearProgramming
             }
             for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
             {
-                if (Solution["X" + i].IsNegative || Solution["X" + i] == new NumberClass("0"))
+                if (i != myTable.FreeVariablesCount + 1 && myTable.TableBeforeCalculations[0][i].IsNegative)
+                {
+                    return false;
+                }
+                // Если в условии свободные переменные (Х1, Х2 и т.д.) строго положительные ->
+                // -> добавить проверку на ноль
+                if (Solution["X" + i].IsNegative /*|| Solution["X" + i] == Zero*/)
                 {
                     return false;
                 }
@@ -115,89 +121,152 @@ namespace LinearProgramming
                     return false;
                 }
             }
+            // Доп. условие
+            if (Convert.ToDouble(Solution["X" + 1].Numerator / Solution["X" + 1].Detominator) * Math.Sqrt(Convert.ToDouble(Solution["X" + 2].Numerator / Solution["X" + 2].Detominator)) - 8 >= 0)
+            {
+                return false;
+            }
             return true;
         }
 
         private void ColumnAndRowSelection(TableClass myTable)
         {
-            SelectedColumn = ColumnSelection(myTable);
-            if (SelectedColumn != -1)
-            {
-                SelectedRow = RowSelection(myTable);
-                if (SelectedRow == -1)
-                {
-                    SelectedRow = RowSelectionIfAcceptableSolution(myTable);
-                }
-            }
-                
-
-            //if (SelectedColumn != -1 && SelectedRow != -1)
-            //{
-            //    for (int i = 0; i < Iterations.Count; i++)
-            //    {
-            //        if (Iterations[i][0] == SelectedRow && Iterations[i][1] == SelectedColumn)
-            //        {
-
-
-            //        }
-            //    }
-            //}
+            int index = 1;
             
-        } //todo убрать зацикливание и добавление новой строки
-
-        private int ColumnSelection(TableClass myTable)
-        {
-            for (int j = 1; j < myTable.FreeVariablesCount + 1; j++)
+            do
             {
-                if (myTable.GetTableBeforeCalculationsItem(0, j).IsNegative)
+                SelectedColumn = ColumnSelection(myTable, index);
+                if (SelectedColumn != -1)
                 {
-                    return j;
+                    SelectedRow = RowSelection(myTable, index);
+                    if (SelectedRow == -1)
+                    {
+                        SelectedRow = RowSelectionIfAcceptableSolution(myTable);
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    bool isSolutionInteger = true;
+
+                    for (int i = 1; i < Solution.Count + 1; i++)
+                    {
+                        if (Solution["X" + i].Detominator != 1)
+                        {
+                            isSolutionInteger = false;
+                        }            
+                    }
+                    if (isSolutionInteger)
+                    {
+                        List<NumberClass> line1 = new List<NumberClass>();
+                        List<NumberClass> line2 = new List<NumberClass>();
+                        for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
+                        {
+                            line1.Add(new NumberClass("-1"));
+                            line2.Add(new NumberClass("-1"));
+                        }
+
+                        SelectedColumn = 1;
+                        SelectedRow = myTable.BasicVariablesCount + myTable.FreeVariablesCount - 1;
+
+                        myTable.TableBeforeCalculations.Add(line1);
+                        myTable.TableAfterCalculations.Add(line2);
+                        myTable.BasicVariables.Add("X" + (myTable.FreeVariablesCount + ++myTable.BasicVariablesCount));
+                        
+                    }
+                    break;
+                }
+            } while (SelectedColumn < myTable.FreeVariablesCount + 1);
+        }
+
+        private int ColumnSelection(TableClass myTable, int index)
+        {
+            for (; index < myTable.FreeVariablesCount + 1; index++)
+            {
+                if (myTable.GetTableBeforeCalculationsItem(0, index).IsNegative)
+                {
+                    return index;
                 }
             }
             return -1;
         }
 
-        private int RowSelection(TableClass myTable)
-        {
+        private int RowSelection(TableClass myTable, int index)
+        { 
+            bool hasNegativeNumbers = false;
+
             for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
             {
                 if (myTable.GetTableBeforeCalculationsItem(i, 0).IsNegative)
                 {
-                    return i;
+                    bool isRepeated = false;
+                    hasNegativeNumbers = true;
+                    for (int k = 0; k < Iterations.Count; k++)
+                    {                
+                        if (Iterations[k][0] == index && Iterations[k][1] == i)
+                        {
+                            isRepeated = true;  
+                        }
+                    }
+                    if (!isRepeated)
+                    {
+                        return i;
+                    }                  
                 }
             }
-            return -1;
+            if (hasNegativeNumbers)
+            {
+                return index;
+            }
+            else
+            {
+                return -1;
+            }
         }
 
         private int RowSelectionIfAcceptableSolution(TableClass myTable)
-        {
+        {           
             int indexOfMaxDifference = -1;
-            NumberClass maxDifference = new NumberClass("0");
+            NumberClass maxDifference = Zero;
             
             for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
             {
-                if (myTable.GetTableBeforeCalculationsItem(i, _selectedColumn) / myTable.GetTableBeforeCalculationsItem(i, 0) > maxDifference)
+                if (myTable.TableBeforeCalculations[i][SelectedColumn] / myTable.TableBeforeCalculations[i][0] > maxDifference)
                 {
-                    maxDifference = myTable.GetTableBeforeCalculationsItem(i, _selectedColumn) / myTable.GetTableBeforeCalculationsItem(i, 0);
-                    indexOfMaxDifference = i;
+
+                    bool isRepeated = false;
+                    for (int k = 0; k < Iterations.Count; k++)
+                    {
+                        if (Iterations[k][0] == SelectedColumn && Iterations[k][1] == i)
+                        {
+                            isRepeated = true;
+                        }
+                    }
+                    if (!isRepeated)
+                    {
+                        maxDifference = myTable.TableBeforeCalculations[i][SelectedColumn] / myTable.TableBeforeCalculations[i][0];
+                        indexOfMaxDifference = i;
+                    }        
                 }
             }
+            
             return indexOfMaxDifference;
         }
 
-        private void AddIteration(TableClass myTable) // todo сделать нормально для учета циклов
+        private void AddIteration()
         {
             List<int> tempList = new List<int>();
-            tempList.Add(SelectedRow);
             tempList.Add(SelectedColumn);
+            tempList.Add(SelectedRow);
             Iterations.Add(tempList);
 
             //for (int i = 0; i < Iterations.Count; i++)
             //{
-            //    for (int j = 0; j < 2; j++)
-            //    {
-            //        Console.Write(Iterations[i][j] + " ");
-            //    }
+            //    Console.WriteLine(Iterations[i][0] + " " + Iterations[i][1]);
             //}
         }
 
@@ -264,6 +333,16 @@ namespace LinearProgramming
 
             // Обмен данных 
             (myTable.FreeVariables[_selectedColumn], myTable.BasicVariables[_selectedRow]) = (myTable.BasicVariables[_selectedRow], myTable.FreeVariables[_selectedColumn]);
+        }
+
+        private void PrintSolution(TableClass myTable)
+        {
+            myTable.PrintTable();
+            foreach (var item in Solution)
+            {
+                Console.Write($"{item.Key} = {item.Value}, ");
+            }
+            Console.WriteLine("q = " + myTable.GetTableBeforeCalculationsItem(0, 0).ToString() + ";");
         }
     }
 }
