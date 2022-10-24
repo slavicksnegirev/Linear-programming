@@ -7,11 +7,13 @@ namespace LinearProgramming
     {
         int _selectedRow = -1;
         int _selectedColumn = -1;
+        int _prevSelectedColumn = 0;
         bool _isDone = false;
 
         NumberClass _zero = new NumberClass("0");
         NumberClass _lambda = new NumberClass("1");       
-        List<List<int>> _iterations = new List<List<int>>();
+        //List<List<int>> _iterations = new List<List<int>>();
+        Dictionary<int, List<int>> _iterations = new Dictionary<int, List<int>>();
         Dictionary<string, NumberClass> _solution = new Dictionary<string, NumberClass>();
 
         public bool IsDone
@@ -43,7 +45,13 @@ namespace LinearProgramming
             set => _selectedColumn = value;
         }
 
-        public List<List<int>> Iterations
+        //public List<List<int>> Iterations
+        //{
+        //    get => _iterations;
+        //    set => _iterations = value;
+        //}
+
+        public Dictionary<int, List<int>> Iterations
         {
             get => _iterations;
             set => _iterations = value;
@@ -75,6 +83,13 @@ namespace LinearProgramming
             myTable.PrintTable(SelectedColumn, SelectedRow);
             UpdateFirstTable(myTable);
             IsDone = CheckTheEndOfTheSolution(myTable);
+            if (IsDone)
+            {
+                IsDone = IsSolutionInteger(myTable);
+            }
+
+            SelectedColumn = -1;
+            SelectedRow = -1;
         }
 
         private bool CheckTheEndOfTheSolution(TableClass myTable)
@@ -122,80 +137,112 @@ namespace LinearProgramming
                 }
             }
             // Доп. условие
-            if (Convert.ToDouble(Solution["X" + 1].Numerator / Solution["X" + 1].Detominator) * Math.Sqrt(Convert.ToDouble(Solution["X" + 2].Numerator / Solution["X" + 2].Detominator)) - 8 >= 0)
-            {
-                return false;
-            }
+            // !!! ВАЖНО !!!
+            // Вводите обратное условие, то есть, если условие (... > 1),
+            // то для проверки введите (... <= 1)
+            //if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
+            //{
+            //    return false;
+            //}
             return true;
         }
 
         private void ColumnAndRowSelection(TableClass myTable)
         {
-            int index = 1;
-            
             do
             {
-                SelectedColumn = ColumnSelection(myTable, index);
+                SelectedColumn = ColumnSelection(myTable);
                 if (SelectedColumn != -1)
                 {
-                    SelectedRow = RowSelection(myTable, index);
+                    RowSelection(myTable);
                     if (SelectedRow == -1)
                     {
                         SelectedRow = RowSelectionIfAcceptableSolution(myTable);
-                        break;
+                        if (SelectedRow == -1)
+                        {
+                            SelectedColumn++;
+                            ColumnAndRowSelection(myTable);
+                        }                      
                     }
-                    else
-                    {
-                        break;
-                    }
+                    break;
                 }
                 else
                 {
-                    bool isSolutionInteger = true;
+                    List<NumberClass> line1 = new List<NumberClass>();
+                    List<NumberClass> line2 = new List<NumberClass>();
 
-                    for (int i = 1; i < Solution.Count + 1; i++)
-                    {
-                        if (Solution["X" + i].Detominator != 1)
-                        {
-                            isSolutionInteger = false;
-                        }            
-                    }
-                    if (isSolutionInteger)
-                    {
-                        List<NumberClass> line1 = new List<NumberClass>();
-                        List<NumberClass> line2 = new List<NumberClass>();
+                    if (IsSolutionInteger(myTable))
+                    {                        
                         for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
                         {
                             line1.Add(new NumberClass("-1"));
                             line2.Add(new NumberClass("-1"));
-                        }
-
-                        SelectedColumn = 1;
-                        SelectedRow = myTable.BasicVariablesCount + myTable.FreeVariablesCount - 1;
-
-                        myTable.TableBeforeCalculations.Add(line1);
-                        myTable.TableAfterCalculations.Add(line2);
-                        myTable.BasicVariables.Add("X" + (myTable.FreeVariablesCount + ++myTable.BasicVariablesCount));
-                        
+                        }                                          
                     }
+                    else
+                    {
+                        int minIndexOfBasicVariables = -1;
+                        for (int i = 1; i < Solution.Count + 1; i++)
+                        {
+                            if (Solution["X" + i] != Zero)
+                            {
+                                minIndexOfBasicVariables = myTable.BasicVariables.IndexOf("X" + i);
+                                break;
+                            }
+                        }
+                        for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
+                        {
+                            var newItem = new NumberClass(Convert.ToString(Math.Round(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].Numerator / myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].Detominator)));
+                            
+                            line1.Add(new NumberClass(Convert.ToString(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j] - newItem)));
+                            line2.Add(new NumberClass(Convert.ToString(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j] - newItem)));
+                        }                       
+                    }
+                    SelectedColumn = ++_prevSelectedColumn;
+                    if (_prevSelectedColumn >= myTable.FreeVariablesCount)
+                    {
+                        _prevSelectedColumn = 0;
+                    }                   
+                    SelectedRow = myTable.BasicVariablesCount + myTable.FreeVariablesCount - 1;
+
+                    myTable.TableBeforeCalculations.Add(line1);
+                    myTable.TableAfterCalculations.Add(line2);
+                    myTable.BasicVariables.Add("X" + (myTable.FreeVariablesCount + ++myTable.BasicVariablesCount));
+
                     break;
                 }
             } while (SelectedColumn < myTable.FreeVariablesCount + 1);
         }
 
-        private int ColumnSelection(TableClass myTable, int index)
+        private bool IsSolutionInteger(TableClass myTable)
         {
-            for (; index < myTable.FreeVariablesCount + 1; index++)
+            for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
             {
-                if (myTable.GetTableBeforeCalculationsItem(0, index).IsNegative)
+                if (Solution["X" + i].Detominator != 1)
                 {
-                    return index;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private int ColumnSelection(TableClass myTable)
+        {
+            if (SelectedColumn == -1)
+            {
+                SelectedColumn = 1;
+            }
+            for (; SelectedColumn < myTable.FreeVariablesCount + 1; SelectedColumn++)
+            {
+                if (myTable.GetTableBeforeCalculationsItem(0, SelectedColumn).IsNegative)
+                {
+                    return SelectedColumn;
                 }
             }
             return -1;
         }
 
-        private int RowSelection(TableClass myTable, int index)
+        private void RowSelection(TableClass myTable)
         { 
             bool hasNegativeNumbers = false;
 
@@ -205,26 +252,28 @@ namespace LinearProgramming
                 {
                     bool isRepeated = false;
                     hasNegativeNumbers = true;
-                    for (int k = 0; k < Iterations.Count; k++)
-                    {                
-                        if (Iterations[k][0] == index && Iterations[k][1] == i)
+                    if (Iterations.ContainsKey(SelectedColumn))
+                    {
+                        if (Iterations[SelectedColumn].Contains(i))
                         {
-                            isRepeated = true;  
+                            isRepeated = true;                            
                         }
                     }
                     if (!isRepeated)
                     {
-                        return i;
+                        SelectedRow = i;
+                        return;
                     }                  
                 }
             }
-            if (hasNegativeNumbers)
+            if (!hasNegativeNumbers)
             {
-                return index;
+                SelectedRow = -1;
             }
             else
             {
-                return -1;
+                SelectedColumn++;
+                ColumnAndRowSelection(myTable);
             }
         }
 
@@ -237,11 +286,10 @@ namespace LinearProgramming
             {
                 if (myTable.TableBeforeCalculations[i][SelectedColumn] / myTable.TableBeforeCalculations[i][0] > maxDifference)
                 {
-
                     bool isRepeated = false;
-                    for (int k = 0; k < Iterations.Count; k++)
+                    if (Iterations.ContainsKey(SelectedColumn))
                     {
-                        if (Iterations[k][0] == SelectedColumn && Iterations[k][1] == i)
+                        if (Iterations[SelectedColumn].Contains(i))
                         {
                             isRepeated = true;
                         }
@@ -252,22 +300,26 @@ namespace LinearProgramming
                         indexOfMaxDifference = i;
                     }        
                 }
-            }
-            
+            }           
             return indexOfMaxDifference;
         }
 
         private void AddIteration()
         {
-            List<int> tempList = new List<int>();
-            tempList.Add(SelectedColumn);
-            tempList.Add(SelectedRow);
-            Iterations.Add(tempList);
-
-            //for (int i = 0; i < Iterations.Count; i++)
+            if (!Iterations.ContainsKey(SelectedColumn))
+            {
+                List<int> tempList = new List<int>();
+                tempList.Add(SelectedRow);
+                Iterations.Add(SelectedColumn, tempList);
+            }
+            else
+            {
+                Iterations[SelectedColumn].Add(SelectedRow);
+            }
+            //foreach (var item in Iterations)
             //{
-            //    Console.WriteLine(Iterations[i][0] + " " + Iterations[i][1]);
-            //}
+            //    Console.Write($"{item.Key} = {item.Value}\n");
+            //}  
         }
 
         private NumberClass GeneralCoefficient(TableClass myTable)

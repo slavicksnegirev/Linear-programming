@@ -65,7 +65,6 @@ namespace LinearProgramming
             {
                 Length = Numerator.ToString().Length + 1 + Detominator.ToString().Length;
             }
-
             return Length;
         }
 
@@ -75,15 +74,23 @@ namespace LinearProgramming
             double numerator = number.Numerator;
             double detominator = number.Detominator;
 
-            for (int i = 2; i <= numerator && i <= detominator; i++)
+            if (numerator % detominator == 0)
             {
-                if ((numerator % i == 0) && (detominator % i == 0))
-                    remainder = i;
+                number.Numerator /= detominator;
+                number.Detominator = 1;
             }
-            if (remainder > 0)
+            else
             {
-                number.Numerator /= remainder;
-                number.Detominator /= remainder;
+                for (int i = 2; i <= Math.Abs(numerator) && i <= detominator; i++)
+                {
+                    if ((Math.Abs(numerator) % i == 0) && (detominator % i == 0))
+                        remainder = i;
+                }
+                if (remainder > 0)
+                {
+                    number.Numerator /= remainder;
+                    number.Detominator /= remainder;
+                }
             }
             number.Length = number.GetLenght();
         }
@@ -110,7 +117,6 @@ namespace LinearProgramming
             {
                 result.Detominator = 1;
             }
-            result.Length = result.GetLenght();
             ShortenTheFraction(result);
 
             return result;
@@ -138,7 +144,6 @@ namespace LinearProgramming
             {
                 result.Detominator = 1;
             }
-            result.Length = result.GetLenght();
             ShortenTheFraction(result);
 
             return result;
@@ -160,7 +165,6 @@ namespace LinearProgramming
                 result.Numerator = 0;
                 result.Detominator = 1;
             }
-            result.Length = result.GetLenght();
             ShortenTheFraction(result);
 
             return result;
@@ -197,7 +201,6 @@ namespace LinearProgramming
             {
                 result.Detominator = 1;
             }
-            result.Length = result.GetLenght();
             ShortenTheFraction(result);
 
             return result;
@@ -266,6 +269,18 @@ namespace LinearProgramming
             else
             {
                 return Numerator.ToString() + '/' + Detominator.ToString();
+            }
+        }
+
+        public double ToDouble()
+        {
+            if (Detominator == 1)
+            {
+                return Convert.ToDouble(Numerator);
+            }
+            else
+            {
+                return Convert.ToDouble(Numerator / Detominator);
             }
         }
     }
