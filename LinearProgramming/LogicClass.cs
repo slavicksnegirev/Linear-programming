@@ -140,10 +140,10 @@ namespace LinearProgramming
             // !!! ВАЖНО !!!
             // Вводите обратное условие, то есть, если условие (... > 1),
             // то для проверки введите (... <= 1)
-            //if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
-            //{
-            //    return false;
-            //}
+            if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -181,28 +181,34 @@ namespace LinearProgramming
                     }
                     else
                     {
-                        int minIndexOfBasicVariables = -1;
-                        for (int i = 1; i < Solution.Count + 1; i++)
+                        int minIndexOfBasicVariables = myTable.FreeVariablesCount + myTable.BasicVariablesCount + 1;
+                        for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
                         {
-                            if (Solution["X" + i] != Zero)
+                            if (Convert.ToInt32(myTable.BasicVariables[i][1].ToString()) < minIndexOfBasicVariables)
                             {
-                                minIndexOfBasicVariables = myTable.BasicVariables.IndexOf("X" + i);
-                                break;
+                                minIndexOfBasicVariables = Convert.ToInt32(myTable.BasicVariables[i][1].ToString());
+                                    
                             }
                         }
+                        minIndexOfBasicVariables = myTable.BasicVariables.IndexOf("X" + minIndexOfBasicVariables);
                         for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
                         {
-                            var newItem = new NumberClass(Convert.ToString(Math.Round(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].Numerator / myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].Detominator)));
+                            var newItem = new NumberClass(Convert.ToString(Math.Floor(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].ToDouble())));
                             
-                            line1.Add(new NumberClass(Convert.ToString(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j] - newItem)));
-                            line2.Add(new NumberClass(Convert.ToString(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j] - newItem)));
+                            line1.Add(new NumberClass(Convert.ToString(newItem - myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
+                            line2.Add(new NumberClass(Convert.ToString(newItem - myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
                         }                       
                     }
-                    SelectedColumn = ++_prevSelectedColumn;
-                    if (_prevSelectedColumn >= myTable.FreeVariablesCount)
+                    int minIndexOfFreeVariable = myTable.BasicVariablesCount + myTable.FreeVariablesCount + 1;
+                    for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
                     {
-                        _prevSelectedColumn = 0;
-                    }                   
+                        if (Convert.ToInt32(myTable.FreeVariables[i][1].ToString()) < minIndexOfFreeVariable)
+                        {
+                            SelectedColumn = i;
+                            minIndexOfFreeVariable = Convert.ToInt32(myTable.FreeVariables[i][1].ToString());
+                        }
+                    }
+
                     SelectedRow = myTable.BasicVariablesCount + myTable.FreeVariablesCount - 1;
 
                     myTable.TableBeforeCalculations.Add(line1);
@@ -243,7 +249,8 @@ namespace LinearProgramming
         }
 
         private void RowSelection(TableClass myTable)
-        { 
+        {
+            int minIndexOfBasicVariable = myTable.BasicVariablesCount + myTable.FreeVariablesCount + 1;
             bool hasNegativeNumbers = false;
 
             for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
@@ -259,10 +266,11 @@ namespace LinearProgramming
                             isRepeated = true;                            
                         }
                     }
-                    if (!isRepeated)
+
+                    if (!isRepeated && (Convert.ToInt32(myTable.BasicVariables[i][1].ToString()) < minIndexOfBasicVariable))
                     {
                         SelectedRow = i;
-                        return;
+                        minIndexOfBasicVariable = Convert.ToInt32(myTable.BasicVariables[i][1].ToString());
                     }                  
                 }
             }
@@ -270,7 +278,7 @@ namespace LinearProgramming
             {
                 SelectedRow = -1;
             }
-            else
+            else if (minIndexOfBasicVariable == myTable.BasicVariablesCount + myTable.FreeVariablesCount + 1)
             {
                 SelectedColumn++;
                 ColumnAndRowSelection(myTable);

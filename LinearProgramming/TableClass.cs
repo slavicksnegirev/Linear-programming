@@ -20,10 +20,10 @@ namespace LinearProgramming
             //new List<string> { "15", "2", "3" },
             //new List<string> { "-6", "-3", "-1" },
 
-            //new List<string> { "0", "-1", "-3" },
-            //new List<string> { "1", "-1", "1" },
-            //new List<string> { "-6", "2", "-4" },
-            //new List<string> { "16", "1", "2" },
+            new List<string> { "0", "-1", "-3" },
+            new List<string> { "1", "-1", "1" },
+            new List<string> { "-6", "2", "-4" },
+            new List<string> { "16", "1", "2" },
 
             //new List<string> { "0", "-4", "1" },
             //new List<string> { "2", "-1", "2" },
@@ -38,10 +38,10 @@ namespace LinearProgramming
             //new List<string> { "2", "1", "-2" },
             //new List<string> { "5",  "1",  "1" }
 
-            new List<string> { "0", "1", "-1" },
-            new List<string> { "0", "1", "-2" },
-            new List<string> { "-3", "-3", "1" },
-            new List<string> { "8", "1", "1" },
+            //new List<string> { "0", "1", "-1" },
+            //new List<string> { "0", "1", "-2" },
+            //new List<string> { "-3", "-3", "1" },
+            //new List<string> { "8", "1", "1" },
         };
 
         public int FreeVariablesCount
