@@ -12,7 +12,6 @@ namespace LinearProgramming
 
         NumberClass _zero = new NumberClass("0");
         NumberClass _lambda = new NumberClass("1");       
-        //List<List<int>> _iterations = new List<List<int>>();
         Dictionary<int, List<int>> _iterations = new Dictionary<int, List<int>>();
         Dictionary<string, NumberClass> _solution = new Dictionary<string, NumberClass>();
 
@@ -44,12 +43,6 @@ namespace LinearProgramming
             get => _selectedColumn;
             set => _selectedColumn = value;
         }
-
-        //public List<List<int>> Iterations
-        //{
-        //    get => _iterations;
-        //    set => _iterations = value;
-        //}
 
         public Dictionary<int, List<int>> Iterations
         {
@@ -105,10 +98,11 @@ namespace LinearProgramming
             }
             for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
             {
-                if (i != myTable.FreeVariablesCount + 1 && myTable.TableBeforeCalculations[0][i].IsNegative)
-                {
-                    return false;
-                }
+                // i != myTable.FreeVariablesCount + 1 &&
+                //if (myTable.TableBeforeCalculations[0][i].IsNegative)
+                //{
+                //    return false;
+                //}
                 // Если в условии свободные переменные (Х1, Х2 и т.д.) строго положительные ->
                 // -> добавить проверку на ноль
                 if (Solution["X" + i].IsNegative /*|| Solution["X" + i] == Zero*/)
@@ -127,23 +121,37 @@ namespace LinearProgramming
             {
                 NumberClass result = new NumberClass("0");
 
-                for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
+                if (i == 0)
                 {
-                    result += myTable.TableBeforeCalculations[i][j];
+                    for (int j = 1; j < myTable.FreeVariablesCount + 1; j++)
+                    {
+                        result += Solution["X" + j] * new NumberClass(myTable.InputValues[0][j]) * new NumberClass("-1");
+                    }
+                    if (result != myTable.TableBeforeCalculations[0][0])
+                    {
+                        return false;
+                    }
                 }
-                if (result.IsNegative)
+                else
                 {
-                    return false;
+                    for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
+                    {
+                        result += myTable.TableBeforeCalculations[i][j];
+                    }
+                    if (result.IsNegative)
+                    {
+                        return false;
+                    }
                 }
             }
             // Доп. условие
             // !!! ВАЖНО !!!
             // Вводите обратное условие, то есть, если условие (... > 1),
             // то для проверки введите (... <= 1)
-            if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
-            {
-                return false;
-            }
+            //if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
+            //{
+            //    return false;
+            //}
             return true;
         }
 
@@ -190,6 +198,7 @@ namespace LinearProgramming
                                     
                             }
                         }
+
                         minIndexOfBasicVariables = myTable.BasicVariables.IndexOf("X" + minIndexOfBasicVariables);
                         for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
                         {
