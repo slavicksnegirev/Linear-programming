@@ -5,9 +5,9 @@ namespace LinearProgramming
 {
     public class TableClass
     {
-        private int _freeVariablesCount;
-        private int _basicVariablesCount;
         private int _maxCellWidth = 3;
+        private int _freeVariablesCount;
+        private int _basicVariablesCount;      
 
         List<string> _freeVariables = new List<string>();
         List<string> _basicVariables = new List<string>();
@@ -16,10 +16,6 @@ namespace LinearProgramming
 
         List<List<string>> _inputValues = new List<List<string>>()
         {
-            new List<string> { "0", "-1", "1" },
-            new List<string> { "-12", "-5", "-1" },
-            new List<string> { "-15", "-1", "-3" },
-
             // 11 Вариант
             //new List<string> { "0", "-2", "3" },
             //new List<string> { "1", "-1", "1" },
@@ -27,28 +23,22 @@ namespace LinearProgramming
             //new List<string> { "16", "1", "2" },
 
             // 18 Вариант
-            //new List<string> { "0", "-1", "-3" },
-            //new List<string> { "1", "-1", "1" },
-            //new List<string> { "-6", "2", "-4" },
-            //new List<string> { "16", "1", "2" },
+            // Условие задачи:  q = X1 + 3•X2 -> max
+            //                  X1 ≥ X2 - 1
+            //                  4•X2 - 2•X1 ≥ 6
+            //                  X1 + 2•X2 ≤ 16
+            //                  X1,X2 ≥ 0; X1,X2 - целые
+            // Доп. условие:    X2•Lg(X1) > 1
+            // 
+            // Ниже представлена заполненная таблица. Доп. условие
+            // прописывается в файле «LogicClass.cs» в конце метода
+            // «CheckTheEndOfTheSolution» (строка: 140). В случае,
+            // если его нет просто заккоментируйте проверку.
 
-            //new List<string> { "0", "-4", "1" },
-            //new List<string> { "2", "-1", "2" },
-            //new List<string> { "2", "1", "-1" },
-
-            //new List<string> { "0", "1", "-1" },
-            //new List<string> { "-6", "-1", "-4" },
-            //new List<string> { "10", "2", "1" },
-
-            //new List<string> { "0", "-1", "1" },
-            //new List<string> { "2", "-2", "1" },
-            //new List<string> { "2", "1", "-2" },
-            //new List<string> { "5",  "1",  "1" }
-
-            //new List<string> { "0", "1", "-1" },
-            //new List<string> { "0", "1", "-2" },
-            //new List<string> { "-3", "-3", "1" },
-            //new List<string> { "8", "1", "1" },
+            new List<string> { "0", "-1", "-3" },
+            new List<string> { "1", "-1", "1" },
+            new List<string> { "-6", "2", "-4" },
+            new List<string> { "16", "1", "2" },
         };
 
         public int FreeVariablesCount
@@ -95,12 +85,15 @@ namespace LinearProgramming
 
         public TableClass()
         {
+            // Отнимаем единицу, чтобы не учитывать строку "q" и столбец "1"
             FreeVariablesCount = InputValues[0].Count - 1;
             BasicVariablesCount = InputValues.Count - 1;  
 
+            // Заполняем списки свободными и базисными переменными
             SetBasicVariablesValues();
             SetFreeVariablesValues();
 
+            // Заполняем таблицу #1 данными из условия, а таблицу #2 нулями 
             for (int i = 0; i < BasicVariablesCount + 1; i++)
             {
                 List<NumberClass> line1 = new List<NumberClass>();
@@ -115,6 +108,7 @@ namespace LinearProgramming
             }
         }
 
+        // Вывод всей таблицы
         public void PrintTable(int selectedColumn, int selectedRow)
         {
             GetMaxCellWidth();
@@ -173,6 +167,7 @@ namespace LinearProgramming
             }
         }
 
+        // Вывод итоговой таблицы
         public void PrintTable()
         {
             GetMaxCellWidth();
@@ -209,6 +204,7 @@ namespace LinearProgramming
             Console.Write("\nОтвет: ");
         }
 
+        // Вывод верхней части строки
         private void PrintFirstRow(int i, int j)
         {
             Console.Write(TableBeforeCalculations[i][j]);
@@ -219,6 +215,7 @@ namespace LinearProgramming
             Console.Write(" | ");
         }
 
+        // Вывод нижней части строки
         private void PrintSecondRow(int i, int j)
         {
             for (int k = 0; k < CountFreeSpaceForTableAfterCalculatingItems(i, j); k++)
@@ -229,6 +226,7 @@ namespace LinearProgramming
             Console.Write(" | ");
         }
 
+        // Вывод разделителя
         private void PrintUnderline()
         {
             Console.Write("\n---+");

@@ -34,13 +34,12 @@ namespace LinearProgramming
 
         public NumberClass(string number)
         {
+            int indexOfSlash = number.IndexOf('/');
+
             if (number[0] == '-')
             {
                 IsNegative = true;
             }
-
-            int indexOfSlash = number.IndexOf('/');
-
             if (indexOfSlash < 0)
             {
                 Numerator = Convert.ToDouble(number);

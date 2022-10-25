@@ -7,7 +7,6 @@ namespace LinearProgramming
     {
         int _selectedRow = -1;
         int _selectedColumn = -1;
-        int _prevSelectedColumn = 0;
         bool _isDone = false;
 
         NumberClass _zero = new NumberClass("0");
@@ -80,11 +79,11 @@ namespace LinearProgramming
             {
                 IsDone = IsSolutionInteger(myTable);
             }
-
             SelectedColumn = -1;
             SelectedRow = -1;
         }
 
+        // Доп. условие вводится в конце этого метода
         private bool CheckTheEndOfTheSolution(TableClass myTable)
         {
             Solution.Clear();
@@ -98,14 +97,7 @@ namespace LinearProgramming
             }
             for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
             {
-                // i != myTable.FreeVariablesCount + 1 &&
-                //if (myTable.TableBeforeCalculations[0][i].IsNegative)
-                //{
-                //    return false;
-                //}
-                // Если в условии свободные переменные (Х1, Х2 и т.д.) строго положительные ->
-                // -> добавить проверку на ноль
-                if (Solution["X" + i].IsNegative /*|| Solution["X" + i] == Zero*/)
+                if (Solution["X" + i].IsNegative)
                 {
                     return false;
                 }
@@ -144,14 +136,19 @@ namespace LinearProgramming
                     }
                 }
             }
-            // Доп. условие
-            // !!! ВАЖНО !!!
-            // Вводите обратное условие, то есть, если условие (... > 1),
+
+            //      Доп. условие
+            // 
+            //      1. Вводите обратное условие, то есть, если условие (... > 1),
             // то для проверки введите (... <= 1)
-            //if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
-            //{
-            //    return false;
-            //}
+            //      2. Необходимая переменная с индексом i прописывается
+            // следующим образом: Solution["X" + i].ToDouble()
+            //      Ниже прописано доп. условие из 18 варианта (X2•Lg(X1) > 1)
+
+            if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
+            {
+                return false;
+            }
             return true;
         }
 
