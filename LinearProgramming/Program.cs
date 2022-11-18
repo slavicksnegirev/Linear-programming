@@ -9,6 +9,8 @@ namespace LinearProgramming
             TableClass tableClass = new TableClass();
             LogicClass logicClass = new LogicClass(tableClass);
 
+
+
             Console.ReadLine();
         }
     }

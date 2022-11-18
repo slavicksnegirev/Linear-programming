@@ -5,6 +5,7 @@ namespace LinearProgramming
 {
     public class LogicClass
     {
+        int count = 0;
         int _selectedRow = -1;
         int _selectedColumn = -1;
         bool _isDone = false;
@@ -13,6 +14,8 @@ namespace LinearProgramming
         NumberClass _lambda = new NumberClass("1");       
         Dictionary<int, List<int>> _iterations = new Dictionary<int, List<int>>();
         Dictionary<string, NumberClass> _solution = new Dictionary<string, NumberClass>();
+
+        List<int> minIndexList = new List<int>();
 
         public bool IsDone
         {
@@ -66,6 +69,7 @@ namespace LinearProgramming
 
         private void MainLogigMethod(TableClass myTable)
         {
+            count++;
             ColumnAndRowSelection(myTable);
             AddIteration();
             myTable.TableAfterCalculations[_selectedRow][_selectedColumn] = GeneralCoefficient(myTable);
@@ -81,6 +85,9 @@ namespace LinearProgramming
             }
             SelectedColumn = -1;
             SelectedRow = -1;
+
+            //Console.WriteLine(count);
+            //PrintSolution(myTable);
         }
 
         // Доп. условие вводится в конце этого метода
@@ -97,6 +104,10 @@ namespace LinearProgramming
             }
             for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
             {
+                if (myTable.TableBeforeCalculations[0][i].IsNegative)
+                {
+                    return false;
+                }
                 if (Solution["X" + i].IsNegative)
                 {
                     return false;
@@ -145,10 +156,10 @@ namespace LinearProgramming
             // следующим образом: Solution["X" + i].ToDouble()
             //      Ниже прописано доп. условие из 18 варианта (X2•Lg(X1) > 1)
 
-            if (Solution["X" + 2].ToDouble() * Math.Log10(Solution["X" + 1].ToDouble()) <= 1)
-            {
-                return false;
-            }
+            //if (600 / Math.Pow(Solution["X" + 1].ToDouble(), 2) <= Solution["X" + 2].ToDouble())
+            //{
+            //    return false;
+            //}
             return true;
         }
 
@@ -173,6 +184,13 @@ namespace LinearProgramming
                 }
                 else
                 {
+                    //if (AreColumnsPositiveAndRowsNegative(myTable))
+                    //{
+                        
+
+                    //    break;
+                    //}
+
                     List<NumberClass> line1 = new List<NumberClass>();
                     List<NumberClass> line2 = new List<NumberClass>();
 
@@ -191,18 +209,41 @@ namespace LinearProgramming
                         {
                             if (Convert.ToInt32(myTable.BasicVariables[i][1].ToString()) < minIndexOfBasicVariables)
                             {
-                                minIndexOfBasicVariables = Convert.ToInt32(myTable.BasicVariables[i][1].ToString());
-                                    
+                                bool flag = true;
+                                for (int k = 0; k < minIndexList.Count; k++)
+                                {
+                                    if (minIndexList[k] == Convert.ToInt32(myTable.BasicVariables[i][1].ToString()))
+                                    {
+
+                                        flag = false;
+                                    }
+                                }
+                                if (flag)
+                                {
+                                    minIndexOfBasicVariables = Convert.ToInt32(myTable.BasicVariables[i][1].ToString());
+                                }
+                                
+                                
                             }
                         }
+                        minIndexList.Add(minIndexOfBasicVariables);
 
                         minIndexOfBasicVariables = myTable.BasicVariables.IndexOf("X" + minIndexOfBasicVariables);
                         for (int j = 0; j < myTable.FreeVariablesCount + 1; j++)
                         {
                             var newItem = new NumberClass(Convert.ToString(Math.Floor(myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].ToDouble())));
+
                             
-                            line1.Add(new NumberClass(Convert.ToString(newItem - myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
-                            line2.Add(new NumberClass(Convert.ToString(newItem - myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
+                            if (myTable.TableBeforeCalculations[minIndexOfBasicVariables][j].IsNegative)
+                            {
+                                line1.Add(new NumberClass(Convert.ToString(newItem + myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
+                                line2.Add(new NumberClass(Convert.ToString(newItem + myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
+                            }
+                            else
+                            {
+                                line1.Add(new NumberClass(Convert.ToString(newItem - myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
+                                line2.Add(new NumberClass(Convert.ToString(newItem - myTable.TableBeforeCalculations[minIndexOfBasicVariables][j])));
+                            }
                         }                       
                     }
                     int minIndexOfFreeVariable = myTable.BasicVariablesCount + myTable.FreeVariablesCount + 1;
@@ -238,6 +279,28 @@ namespace LinearProgramming
             return true;
         }
 
+        private bool AreColumnsPositiveAndRowsNegative(TableClass myTable)
+        {
+            if (IsSolutionInteger(myTable))
+            {
+                for (int i = 1; i < myTable.FreeVariablesCount + 1; i++)
+                {
+                    if (myTable.TableBeforeCalculations[0][i].IsNegative)
+                    {
+                        return false;
+                    }
+                }
+                for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
+                {
+                    if (myTable.TableBeforeCalculations[i][0].IsNegative)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         private int ColumnSelection(TableClass myTable)
         {
             if (SelectedColumn == -1)
@@ -246,8 +309,9 @@ namespace LinearProgramming
             }
             for (; SelectedColumn < myTable.FreeVariablesCount + 1; SelectedColumn++)
             {
-                if (myTable.GetTableBeforeCalculationsItem(0, SelectedColumn).IsNegative)
+                if (myTable.TableBeforeCalculations[0][SelectedColumn].IsNegative)
                 {
+                    
                     return SelectedColumn;
                 }
             }
@@ -261,8 +325,8 @@ namespace LinearProgramming
 
             for (int i = 1; i < myTable.BasicVariablesCount + 1; i++)
             {
-                if (myTable.GetTableBeforeCalculationsItem(i, 0).IsNegative)
-                {
+                if (myTable.TableBeforeCalculations[i][0].IsNegative)
+                {                   
                     bool isRepeated = false;
                     hasNegativeNumbers = true;
                     if (Iterations.ContainsKey(SelectedColumn))

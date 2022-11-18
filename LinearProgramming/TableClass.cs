@@ -35,10 +35,15 @@ namespace LinearProgramming
             // «CheckTheEndOfTheSolution» (строка: 140). В случае,
             // если его нет просто заккоментируйте проверку.
 
-            new List<string> { "0", "-1", "-3" },
-            new List<string> { "1", "-1", "1" },
-            new List<string> { "-6", "2", "-4" },
-            new List<string> { "16", "1", "2" },
+            //new List<string> { "0", "0", "-1" },
+            //new List<string> { "20", "1", "1" },
+            //new List<string> { "-4", "-2", "10" },
+            //new List<string> { "16", "1", "2" },
+
+            new List<string> { "0", "-1", "1" },
+            new List<string> { "2", "1", "-4" },
+            new List<string> { "15", "2", "3" },
+            new List<string> { "-6", "-3", "-1" },
         };
 
         public int FreeVariablesCount
